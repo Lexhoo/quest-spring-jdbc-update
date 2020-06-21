@@ -32,4 +32,5 @@ public class SchoolController {
 
         return "school_get";
     }
+
 }

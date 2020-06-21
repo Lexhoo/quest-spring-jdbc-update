@@ -8,6 +8,9 @@ import java.sql.SQLException;
 
 import com.wildcodeschool.wildandwizard.entity.School;
 import com.wildcodeschool.wildandwizard.util.JdbcUtils;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 public class SchoolRepository {
 
@@ -15,13 +18,38 @@ public class SchoolRepository {
     private final static String DB_USER = "h4rryp0tt3r";
     private final static String DB_PASSWORD = "Horcrux4life!";
 
-    public School update(Long id, String name, Long capacity, String country) {
+    @GetMapping("/school/update")
 
-        // TODO : update a school from the database
+   public School update(Long id, String name, Long capacity, String country) {
+
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = DriverManager.getConnection(
+                    DB_URL, DB_USER, DB_PASSWORD
+            );
+            statement = connection.prepareStatement(
+                    "UPDATE school SET name=?, capacity=?, country=? WHERE id=?"
+            );
+            statement.setString(1, name);
+            statement.setLong(2, capacity);
+            statement.setString(3, country);
+            statement.setLong(4, id);
+
+            if (statement.executeUpdate() != 1) {
+                throw new SQLException("Failed to Update data");
+            }
+            return new School(id, name, capacity, country);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
+        }
         return null;
     }
 
-    public School findById(Long id) {
+        public School findById(Long id) {
 
         Connection connection = null;
         PreparedStatement statement = null;
